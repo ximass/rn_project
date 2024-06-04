@@ -11,13 +11,13 @@ const Stack = createStackNavigator();
 const Navigation: React.FC = () => {
     return (
         <NavigationContainer>
+            <Sidebar />
+            
             <Stack.Navigator initialRouteName="Home">
                 <Stack.Screen name="Home" component={Home} />
                 <Stack.Screen name="MovieForm" component={MovieForm} />
                 <Stack.Screen name="MovieList" component={MovieList} />
             </Stack.Navigator>
-
-            <Sidebar />
         </NavigationContainer>
     );
 };
