@@ -3,7 +3,6 @@ import styled from 'styled-components/native';
 
 const Container = styled.View`
   flex: 1;
-  justify-content: center;
   align-items: center;
 `;
 
@@ -16,6 +15,10 @@ const Title = styled.Text`
 const MovieItem = styled.Text`
   font-size: 18px;
   margin-bottom: 8px;
+  background-color: #e1dede;
+  padding: 8px;
+  border-radius: 2px;
+  width: 80%;
 `;
 
 const MovieList: React.FC = () => {
