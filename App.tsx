@@ -1,22 +1,42 @@
-import React from 'react';
-import Navigation from './src/navigation/Navigation';
-import { initializeApp } from "firebase/app";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Login from "./screens/Login";
+import MovieForm from "./screens/Movie/MovieForm";
+import MovieList from "./screens/Movie/MovieList";
+import Home from "./screens/Home";
+import { useEffect, useState } from "react";
+import { User, onAuthStateChanged } from "firebase/auth";
+import { FIREBASE_AUTH } from "./FirebaseConfig";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyASCAMsn8G_aQmf2KOGq4PDDstwW1Y_KNw",
-  authDomain: "rn-expo-bb825.firebaseapp.com",
-  projectId: "rn-expo-bb825",
-  storageBucket: "rn-expo-bb825.appspot.com",
-  messagingSenderId: "521281768358",
-  appId: "1:521281768358:web:e4da10ed6c75cd4ae35d67"
-};
+const Stack = createNativeStackNavigator();
 
-const firebase = initializeApp(firebaseConfig);
+const InsideStack =  createNativeStackNavigator();
 
-const App: React.FC = () => {
+function InsideLayout() {
   return (
-    <Navigation />
+    <InsideStack.Navigator>
+      <InsideStack.Screen name="Home" component={Home} />
+      <InsideStack.Screen name="MovieForm" component={MovieForm} />
+      <InsideStack.Screen name="MovieList" component={MovieList} />
+    </InsideStack.Navigator>
   );
-};
+}
 
-export default App;
+export default function App() {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      console.log('user', user);
+      setUser(user);
+    });
+  }, [])
+
+  return (
+   <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        {user ? <Stack.Screen name="Inside" component={InsideLayout} options={ {headerShown: false}} /> : <Stack.Screen name="Login" component={Login} options={{headerShown: false}}/>}
+      </Stack.Navigator>
+   </NavigationContainer>
+  );
+}
