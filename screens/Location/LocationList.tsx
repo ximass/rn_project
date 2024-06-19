@@ -12,7 +12,7 @@ const Title = styled.Text`
   margin-bottom: 16px;
 `;
 
-const MovieItem = styled.Text`
+const LocationItem = styled.Text`
   font-size: 18px;
   margin-bottom: 8px;
   background-color: #e1dede;
@@ -21,17 +21,17 @@ const MovieItem = styled.Text`
   width: 80%;
 `;
 
-const MovieList: React.FC = () => {
-  const movies = ['Movie 1', 'Movie 2', 'Movie 3']; // Exemplo de dados da lista
+const LocationList: React.FC = () => {
+  const Locations = ['Location 1', 'Location 2', 'Location 3']; // Exemplo de dados da lista
 
   return (
     <Container>
-      <Title>Movie List</Title>
-      {movies.map((movie, index) => (
-        <MovieItem key={index}>{movie}</MovieItem>
+      <Title>Locations</Title>
+      {Locations.map((Location, index) => (
+        <LocationItem key={index}>{Location}</LocationItem>
       ))}
     </Container>
   );
 };
 
-export default MovieList;
+export default LocationList;
