@@ -31,3 +31,10 @@ export const ButtonText = styled.Text`
   font-size: 18px;
   font-weight: bold;
 `;
+
+export const ErrorText = styled.Text`
+  color: red;
+  font-size: 14px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+`;

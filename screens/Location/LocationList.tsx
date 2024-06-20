@@ -1,4 +1,9 @@
-import React from 'react';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { FIREBASE_CONFIG } from "../../FirebaseConfig";
+import { initializeApp } from 'firebase/app';
+import { initializeFirestore } from 'firebase/firestore'
+
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/native';
 
 const Container = styled.View`
@@ -21,15 +26,41 @@ const LocationItem = styled.Text`
   width: 80%;
 `;
 
-const LocationList: React.FC = () => {
-  const Locations = ['Location 1', 'Location 2', 'Location 3']; // Exemplo de dados da lista
+interface Location {
+  title: string;
+}
 
+const LocationList: React.FC = () => {
+  const [locations, setLocations] = useState<Location[]>([]);
+  
+  const fb = initializeApp(FIREBASE_CONFIG);
+  const db = initializeFirestore(fb, {})
+
+  const load = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'location'));
+      const locationsData: Location[] = [];
+
+      querySnapshot.forEach((doc) => {
+        locationsData.push(doc.data() as Location);
+      });
+
+      setLocations(locationsData);
+    } catch (error) {
+      console.error('Error loading locations: ', error);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+  
   return (
     <Container>
-      <Title>Locations</Title>
-      {Locations.map((Location, index) => (
-        <LocationItem key={index}>{Location}</LocationItem>
-      ))}
+        <Title>Locations</Title>
+        {locations && locations.map((location, index) => (
+            <LocationItem key={index}>{location.title}</LocationItem>
+        ))}
     </Container>
   );
 };
