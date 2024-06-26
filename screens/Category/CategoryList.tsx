@@ -4,74 +4,73 @@ import { initializeApp } from 'firebase/app';
 import { initializeFirestore } from 'firebase/firestore';
 
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Modal, TextInput, Button, Text, View } from 'react-native';
 import { Title, Container, Item, Text as ItemText, DeleteIcon, ButtonContainer, ModalButton, ButtonText } from '../../styles/List.styles.js';
 
-interface Location {
+interface Category {
   id: string;
-  title: string;
-  description: string; // Adicionado campo description
+  name: string;
+  description: string;
 }
 
-const LocationList: React.FC = () => {
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newDescription, setNewDescription] = useState('');
+const CategoryList: React.FC = () => {
+  const [category, setCategories]               = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [modalVisible, setModalVisible]         = useState(false);
+  const [newName, setNewname]                   = useState('');
+  const [newDescription, setNewDescription]     = useState('');
 
   const fb = initializeApp(FIREBASE_CONFIG);
   const db = initializeFirestore(fb, {})
 
   const load = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'location'));
-      const locationsData: Location[] = [];
+      const querySnapshot = await getDocs(collection(db, 'category'));
+      const categoryData: Category[] = [];
 
       querySnapshot.forEach((doc) => {
-        locationsData.push({ id: doc.id, ...doc.data() } as Location);
+        categoryData.push({ id: doc.id, ...doc.data() } as Category);
       });
 
-      setLocations(locationsData);
+      setCategories(categoryData);
     } catch (error) {
-      console.error('Error loading locations: ', error);
+      console.error('Error loading category: ', error);
     }
   };
 
-  const deleteLocation = async (id: string) => {
+  const deleteCategory = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'location', id));
-      setLocations((prevLocations) => prevLocations.filter(location => location.id !== id));
+      await deleteDoc(doc(db, 'category', id));
+      setCategories((prevCategories) => prevCategories.filter(category => category.id !== id));
     } catch (error) {
-      console.error('Error deleting location: ', error);
+      console.error('Error deleting category: ', error);
     }
   };
 
-  const editLocation = (location: Location) => {
-    setSelectedLocation(location);
-    setNewTitle(location.title);
-    setNewDescription(location.description); // Preenche o campo description ao editar
+  const editCategory = (category: Category) => {
+    setSelectedCategory(category);
+    setNewname(category.name);
+    setNewDescription(category.description);
     setModalVisible(true);
   };
 
-  const updateLocation = async () => {
-    if (selectedLocation) {
+  const updateCategory = async () => {
+    if (selectedCategory) {
       try {
-        await updateDoc(doc(db, 'location', selectedLocation.id), {
-          title: newTitle,
-          description: newDescription, // Atualiza o campo description
+        await updateDoc(doc(db, 'category', selectedCategory.id), {
+          name: newName,
+          description: newDescription
         });
-        setLocations((prevLocations) =>
-          prevLocations.map((location) =>
-            location.id === selectedLocation.id ? { ...location, title: newTitle, description: newDescription } : location
+        setCategories((prevCategories) =>
+          prevCategories.map((category) =>
+            category.id === selectedCategory.id ? { ...category, name: newName, description: newDescription } : category
           )
         );
         setModalVisible(false);
-        setSelectedLocation(null);
+        setSelectedCategory(null);
       } catch (error) {
-        console.error('Error updating location: ', error);
+        console.error('Error updating category: ', error);
       }
     }
   };
@@ -82,16 +81,16 @@ const LocationList: React.FC = () => {
   
   return (
     <Container>
-      <Title>Locations</Title>
-      {locations && locations.map((location) => (
-        <Item key={location.id} onPress={() => editLocation(location)}>
-          <ItemText>{location.title}</ItemText>
-          <DeleteIcon onPress={() => deleteLocation(location.id)}>
+      <Title>Categories</Title>
+      {category && category.map((category) => (
+        <Item key={category.id} onPress={() => editCategory(category)}>
+          <ItemText>{category.name}</ItemText>
+          <DeleteIcon onPress={() => deleteCategory(category.id)}>
             <Icon name="delete" size={24} color="black" />
           </DeleteIcon>
         </Item>
       ))}
-      {selectedLocation && (
+      {selectedCategory && (
         <Modal
           animationType="slide"
           transparent={true}
@@ -111,11 +110,11 @@ const LocationList: React.FC = () => {
               shadowRadius: 2,
               elevation: 5,
             }}>
-              <Title>Edit Location</Title>
+              <Title>Edit Category</Title>
               <TextInput
-                placeholder="Title"
-                value={newTitle}
-                onChangeText={setNewTitle}
+                placeholder="Name"
+                value={newName}
+                onChangeText={setNewname}
                 style={{width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 10}}
               />
               <TextInput
@@ -127,7 +126,7 @@ const LocationList: React.FC = () => {
                 numberOfLines={4}
               />
               <ButtonContainer>
-                <ModalButton onPress={updateLocation}>
+                <ModalButton onPress={updateCategory}>
                   <ButtonText>Update</ButtonText>
                 </ModalButton>
                 <ModalButton onPress={() => setModalVisible(false)}>
@@ -142,4 +141,4 @@ const LocationList: React.FC = () => {
   );
 };
 
-export default LocationList;
+export default CategoryList;
