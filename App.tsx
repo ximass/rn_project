@@ -3,6 +3,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "./screens/Login";
 import LocationForm from "./screens/Location/LocationForm";
 import LocationList from "./screens/Location/LocationList";
+import CategoryForm from './screens/Category/CategoryForm';
+import CategoryList from './screens/Category/CategoryList';
 import Home from "./screens/Home";
 import { useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
@@ -18,6 +20,8 @@ function InsideLayout() {
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="LocationForm" component={LocationForm} />
           <Stack.Screen name="LocationList" component={LocationList} />
+          <Stack.Screen name="CategoryForm" component={CategoryForm} />
+          <Stack.Screen name="CategoryList" component={CategoryList} />
       </Stack.Navigator>
     </>
   );

@@ -38,3 +38,12 @@ export const ErrorText = styled.Text`
   margin-top: 4px;
   margin-bottom: 8px;
 `;
+
+export const PickerContainer = styled.View`
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  background-color: white;
+`;
