@@ -2,12 +2,12 @@ import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { FIREBASE_CONFIG } from "../../FirebaseConfig";
 import { initializeApp } from 'firebase/app';
 import { initializeFirestore } from 'firebase/firestore';
-
+import {Picker} from '@react-native-picker/picker';
 import React, { useEffect, useState } from 'react';
 //@ts-ignore
 import { Container, Title, TextInput, Button, ButtonText, ErrorText, PickerContainer } from '../../styles/Form.styles.js';
 import { useNavigation } from '@react-navigation/native';
-import { Image, Picker } from 'react-native';
+import { Image } from 'react-native';
 
 import * as ImagePicker from 'expo-image-picker';
 
