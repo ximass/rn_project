@@ -7,4 +7,5 @@ export const SidebarData = [
     { title: 'Locations', path: 'LocationList', icon: <Icon name="list" size={20} /> },
     { title: 'Category', path: 'CategoryForm', icon: <Icon name="table" size={20} /> },
     { title: 'Categories', path: 'CategoryList', icon: <Icon name="list" size={20} /> },
+    { title: 'Maps', path: 'Maps', icon: <Icon name="map" size={20} /> },
 ];

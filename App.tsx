@@ -5,6 +5,7 @@ import LocationForm from "./screens/Location/LocationForm";
 import LocationList from "./screens/Location/LocationList";
 import CategoryForm from './screens/Category/CategoryForm';
 import CategoryList from './screens/Category/CategoryList';
+import Maps from "./screens/Maps/Maps";
 import Home from "./screens/Home";
 import { useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
@@ -22,6 +23,7 @@ function InsideLayout() {
           <Stack.Screen name="LocationList" component={LocationList} />
           <Stack.Screen name="CategoryForm" component={CategoryForm} />
           <Stack.Screen name="CategoryList" component={CategoryList} />
+          <Stack.Screen name="Maps"         component={Maps} />
       </Stack.Navigator>
     </>
   );
