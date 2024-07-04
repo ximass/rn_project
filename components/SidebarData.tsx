@@ -6,5 +6,5 @@ export const SidebarData = [
     { title: 'Location', path: 'LocationForm', icon: <FaIcons.FaCrosshairs /> },
     { title: 'Locations', path: 'LocationList', icon: <FaIcons.FaList /> },
     { title: 'Category', path: 'CategoryForm', icon: <FaIcons.FaTable /> },
-    { title: 'Categories', path: 'CategoryList', icon: <FaIcons.FaList /> },
+    { title: 'Categories', path: 'CategoryList', icon: <FaIcons.FaList /> }
 ];

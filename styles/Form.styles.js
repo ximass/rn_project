@@ -19,11 +19,13 @@ export const TextInput = styled.TextInput`
   font-size: 16px;
 `;
 
-export const Button = styled.TouchableOpacity`
+//Add the margin-top via component props
+export const Button = styled.TouchableOpacity.attrs(props => props)`
   background-color: #007bff;
   padding: 12px;
   border-radius: 5px;
   align-items: center;
+  margin-top: ${props => props.marginTop ? `${props.marginTop}px` : 0};
 `;
 
 export const ButtonText = styled.Text`

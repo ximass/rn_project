@@ -1,7 +1,7 @@
-import { View, Text, Button, StyleSheet, ActivityIndicator, KeyboardAvoidingView } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, KeyboardAvoidingView } from "react-native";
 import React, {useState} from 'react';
 import { FIREBASE_AUTH } from "../FirebaseConfig";
-import { TextInput } from "../styles/Form.styles";
+import { TextInput, Button, ButtonText } from "../styles/Form.styles";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 
@@ -56,8 +56,13 @@ const Login = () => {
                     <ActivityIndicator size="large" color="#0000ff" /> 
                 ) : ( 
                 <> 
-                    <Button title = "Login" onPress = {signIn} />
-                    <Button title = "Create account" onPress = {signUp} />
+                    <Button onPress={signIn} >
+                        <ButtonText>Login</ButtonText>
+                    </Button>
+
+                    <Button onPress={signUp} marginTop="10">
+                        <ButtonText>Create account</ButtonText>
+                    </Button>
                 </>
                 )}
             </KeyboardAvoidingView>
