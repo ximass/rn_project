@@ -11,14 +11,14 @@ import { Image } from 'react-native';
 
 import * as ImagePicker from 'expo-image-picker';
 
-const LocationForm = () => {
-    const navigation                              = useNavigation();
-    const [title, setTitle]                       = useState('');
-    const [description, setDescription]           = useState('');
-    const [categories, setCategories]             = useState<any[]>([]);
+const LocationForm = ({ initialCoordinate, onClose }) => {
+    const navigation = useNavigation();
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [categories, setCategories] = useState<any[]>([]);
     const [selectedCategory, setSelectedCategory] = useState('');
-    const [imageUri, setImageUri]                 = useState<string | null>(null);
-    const [errors, setErrors]                     = useState<{title?: string, description?: string, imageUri?: string}>({});
+    const [imageUri, setImageUri] = useState<string | null>(null);
+    const [errors, setErrors] = useState<{ title?: string, description?: string, imageUri?: string }>({});
 
     const fb = initializeApp(FIREBASE_CONFIG);
     const db = initializeFirestore(fb, {});
@@ -37,7 +37,7 @@ const LocationForm = () => {
     };
 
     const validate = () => {
-        const newErrors: {title?: string, description?: string, imageUri?: string} = {};
+        const newErrors: { title?: string, description?: string, imageUri?: string } = {};
 
         if (!title) {
             newErrors.title = 'Title is required';
@@ -62,8 +62,12 @@ const LocationForm = () => {
                 title,
                 description,
                 imageUri,
-                category: selectedCategory
+                category: selectedCategory,
+                latitude: initialCoordinate.latitude,
+                longitude: initialCoordinate.longitude
             });
+
+            onClose(); // Fecha o modal após o cadastro
 
             //@ts-ignore
             navigation.navigate('LocationList');
@@ -77,8 +81,8 @@ const LocationForm = () => {
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             quality: 1,
         });
-      
-        if (!results.canceled) {
+
+        if (!results.cancelled) {
             setImageUri(results.assets[0].uri);
             setErrors((prevErrors) => ({ ...prevErrors, imageUri: undefined }));
         }
