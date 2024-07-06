@@ -12,7 +12,9 @@ import { Title, Container, Item, Text as ItemText, DeleteIcon, ButtonContainer, 
 interface Location {
   id: string;
   title: string;
-  description: string; // Adicionado campo description
+  description: string;
+  latitude: number;
+  longitude: number;
 }
 
 const LocationList: React.FC = () => {
@@ -21,9 +23,11 @@ const LocationList: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  const [newLatitude, setNewLatitude] = useState<string | null>(null); 
+  const [newLongitude, setNewLongitude] = useState<string | null>(null);
 
   const fb = initializeApp(FIREBASE_CONFIG);
-  const db = initializeFirestore(fb, {})
+  const db = initializeFirestore(fb, {});
 
   const load = async () => {
     try {
@@ -52,20 +56,24 @@ const LocationList: React.FC = () => {
   const editLocation = (location: Location) => {
     setSelectedLocation(location);
     setNewTitle(location.title);
-    setNewDescription(location.description); // Preenche o campo description ao editar
+    setNewDescription(location.description);
+    setNewLatitude(location.latitude.toString()); 
+    setNewLongitude(location.longitude.toString());
     setModalVisible(true);
   };
 
   const updateLocation = async () => {
-    if (selectedLocation) {
+    if (selectedLocation && newLatitude !== null && newLongitude !== null) { 
       try {
         await updateDoc(doc(db, 'location', selectedLocation.id), {
           title: newTitle,
-          description: newDescription, // Atualiza o campo description
+          description: newDescription,
+          latitude: parseFloat(newLatitude), 
+          longitude: parseFloat(newLongitude), 
         });
         setLocations((prevLocations) =>
           prevLocations.map((location) =>
-            location.id === selectedLocation.id ? { ...location, title: newTitle, description: newDescription } : location
+            location.id === selectedLocation.id ? { ...location, title: newTitle, description: newDescription, latitude: parseFloat(newLatitude), longitude: parseFloat(newLongitude) } : location
           )
         );
         setModalVisible(false);
@@ -126,6 +134,22 @@ const LocationList: React.FC = () => {
                 multiline={true}
                 numberOfLines={4}
               />
+              {newLatitude !== null && ( // Renderiza apenas se newLatitude não for null
+                <TextInput
+                  placeholder="Latitude"
+                  value={newLatitude}
+                  onChangeText={setNewLatitude}
+                  style={{width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 10}}
+                />
+              )}
+              {newLongitude !== null && ( // Renderiza apenas se newLongitude não for null
+                <TextInput
+                  placeholder="Longitude"
+                  value={newLongitude}
+                  onChangeText={setNewLongitude}
+                  style={{width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 20}}
+                />
+              )}
               <ButtonContainer>
                 <ModalButton onPress={updateLocation}>
                   <ButtonText>Update</ButtonText>
