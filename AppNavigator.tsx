@@ -7,6 +7,7 @@ import LocationList from './screens/Location/LocationList';
 import CategoryForm from './screens/Category/CategoryForm';
 import CategoryList from './screens/Category/CategoryList';
 import Sidebar from './components/Sidebar';
+import Maps from './screens/Maps/Maps';
 
 const Drawer = createDrawerNavigator();
 
@@ -19,6 +20,7 @@ const AppNavigator: React.FC = () => {
         <Drawer.Screen name="LocationList" component={LocationList} />
         <Drawer.Screen name="CategoryForm" component={CategoryForm} />
         <Drawer.Screen name="CategoryList" component={CategoryList} />
+        <Drawer.Screen name="Maps"         component={Maps} />
       </Drawer.Navigator>
     </NavigationContainer>
   );

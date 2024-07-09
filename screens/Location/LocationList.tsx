@@ -1,4 +1,4 @@
-import { addDoc, collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { FIREBASE_CONFIG } from "../../FirebaseConfig";
 import { initializeApp } from 'firebase/app';
 import { initializeFirestore } from 'firebase/firestore';
@@ -13,8 +13,8 @@ interface Location {
   id: string;
   title: string;
   description: string;
-  latitude: number;
-  longitude: number;
+  latitude?: number; // torna latitude e longitude opcionais
+  longitude?: number;
 }
 
 const LocationList: React.FC = () => {
@@ -23,26 +23,33 @@ const LocationList: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
-  const [newLatitude, setNewLatitude] = useState<string | null>(null); 
+  const [newLatitude, setNewLatitude] = useState<string | null>(null);
   const [newLongitude, setNewLongitude] = useState<string | null>(null);
 
   const fb = initializeApp(FIREBASE_CONFIG);
   const db = initializeFirestore(fb, {});
 
-  const load = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, 'location'));
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'location'), (querySnapshot) => {
       const locationsData: Location[] = [];
-
       querySnapshot.forEach((doc) => {
-        locationsData.push({ id: doc.id, ...doc.data() } as Location);
+        const data = doc.data();
+        locationsData.push({
+          id: doc.id,
+          title: data.title,
+          description: data.description,
+          latitude: data.latitude,
+          longitude: data.longitude
+        });
       });
-
       setLocations(locationsData);
-    } catch (error) {
+    }, (error) => {
       console.error('Error loading locations: ', error);
-    }
-  };
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
   const deleteLocation = async (id: string) => {
     try {
@@ -57,23 +64,29 @@ const LocationList: React.FC = () => {
     setSelectedLocation(location);
     setNewTitle(location.title);
     setNewDescription(location.description);
-    setNewLatitude(location.latitude.toString()); 
-    setNewLongitude(location.longitude.toString());
+    setNewLatitude(location.latitude !== undefined ? location.latitude.toString() : null); // define null se latitude não existir
+    setNewLongitude(location.longitude !== undefined ? location.longitude.toString() : null); // define null se longitude não existir
     setModalVisible(true);
   };
 
   const updateLocation = async () => {
-    if (selectedLocation && newLatitude !== null && newLongitude !== null) { 
+    if (selectedLocation && newLatitude !== null && newLongitude !== null) {
       try {
         await updateDoc(doc(db, 'location', selectedLocation.id), {
           title: newTitle,
           description: newDescription,
-          latitude: parseFloat(newLatitude), 
-          longitude: parseFloat(newLongitude), 
+          latitude: parseFloat(newLatitude),
+          longitude: parseFloat(newLongitude),
         });
         setLocations((prevLocations) =>
           prevLocations.map((location) =>
-            location.id === selectedLocation.id ? { ...location, title: newTitle, description: newDescription, latitude: parseFloat(newLatitude), longitude: parseFloat(newLongitude) } : location
+            location.id === selectedLocation.id ? {
+              ...location,
+              title: newTitle,
+              description: newDescription,
+              latitude: parseFloat(newLatitude),
+              longitude: parseFloat(newLongitude)
+            } : location
           )
         );
         setModalVisible(false);
@@ -84,10 +97,6 @@ const LocationList: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    load();
-  }, []);
-  
   return (
     <Container>
       <Title>Locations</Title>
@@ -124,13 +133,13 @@ const LocationList: React.FC = () => {
                 placeholder="Title"
                 value={newTitle}
                 onChangeText={setNewTitle}
-                style={{width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 10}}
+                style={{ width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 10 }}
               />
               <TextInput
                 placeholder="Description"
                 value={newDescription}
                 onChangeText={setNewDescription}
-                style={{width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 20}}
+                style={{ width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 20 }}
                 multiline={true}
                 numberOfLines={4}
               />
@@ -139,7 +148,7 @@ const LocationList: React.FC = () => {
                   placeholder="Latitude"
                   value={newLatitude}
                   onChangeText={setNewLatitude}
-                  style={{width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 10}}
+                  style={{ width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 10 }}
                 />
               )}
               {newLongitude !== null && ( // Renderiza apenas se newLongitude não for null
@@ -147,7 +156,7 @@ const LocationList: React.FC = () => {
                   placeholder="Longitude"
                   value={newLongitude}
                   onChangeText={setNewLongitude}
-                  style={{width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 20}}
+                  style={{ width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 20 }}
                 />
               )}
               <ButtonContainer>

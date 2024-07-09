@@ -2,7 +2,7 @@ import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { FIREBASE_CONFIG } from "../../FirebaseConfig";
 import { initializeApp } from 'firebase/app';
 import { initializeFirestore } from 'firebase/firestore';
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useState } from 'react';
 //@ts-ignore
 import { Container, Title, TextInput, Button, ButtonText, ErrorText, PickerContainer } from '../../styles/Form.styles.js';
@@ -58,16 +58,25 @@ const LocationForm = ({ initialCoordinate, onClose }) => {
         }
 
         try {
-            await addDoc(collection(db, "location"), {
+            const data: { title: string, description: string, imageUri: string, category: string, latitude?: number, longitude?: number } = {
                 title,
                 description,
                 imageUri,
-                category: selectedCategory,
-                latitude: initialCoordinate.latitude,
-                longitude: initialCoordinate.longitude
-            });
+                category: selectedCategory
+            };
 
-            onClose(); // Fecha o modal após o cadastro
+            // Adicione latitude e longitude se estiverem disponíveis
+            if (initialCoordinate && initialCoordinate.latitude && initialCoordinate.longitude) {
+                data.latitude = initialCoordinate.latitude;
+                data.longitude = initialCoordinate.longitude;
+            }
+
+            await addDoc(collection(db, "location"), data);
+
+            // Chame a função de callback para fechar o modal e atualizar a lista
+            if (onClose) {
+                onClose();
+            }
 
             //@ts-ignore
             navigation.navigate('LocationList');
