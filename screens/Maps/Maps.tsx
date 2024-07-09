@@ -1,17 +1,37 @@
 import React, { useState, useEffect } from 'react'; 
-import { View, StyleSheet, Modal, TouchableOpacity, Text } from 'react-native'; 
+import { View, StyleSheet, Modal, TouchableOpacity, Text, Alert } from 'react-native'; 
 import MapView, { Marker } from 'react-native-maps';
+import * as Location from 'expo-location';
 import { collection, onSnapshot } from "firebase/firestore"; 
 import { FIREBASE_DB } from "../../FirebaseConfig"; 
 import LocationForm from '../Location/LocationForm'; 
 
 const Maps = () => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [coordinate, setCoordinate] = useState({ latitude: 0, longitude: 0 });
-  const [locations, setLocations] = useState([]);
+  const [modalVisible, setModalVisible]         = useState(false);
+  const [coordinate, setCoordinate]             = useState({ latitude: 0, longitude: 0 });
+  const [locations, setLocations]               = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [currentLocation, setCurrentLocation]   = useState(null);
 
   useEffect(() => {
+    const getLocationPermission = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      
+      setCurrentLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+    };
+
+    getLocationPermission();
+
     const unsubscribe = onSnapshot(collection(FIREBASE_DB, 'location'), (querySnapshot) => {
       const locationsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -22,7 +42,6 @@ const Maps = () => {
       console.error("Erro ao buscar localizações: ", error);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
@@ -43,7 +62,7 @@ const Maps = () => {
   };
 
   const handleLocationFormClose = () => {
-    closeModal();  // Fecha o modal do formulário
+    closeModal();
   };
 
   return ( 
@@ -56,8 +75,20 @@ const Maps = () => {
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         }}
+        region={currentLocation ? {
+          ...currentLocation,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        } : undefined}
         onPress={handlePress}
       >
+        {currentLocation && (
+          <Marker
+            coordinate={currentLocation}
+            title="You are here"
+            pinColor="blue"
+          />
+        )}
         {locations.map(location => (
           <Marker
             key={location.id}
@@ -69,7 +100,6 @@ const Maps = () => {
         ))}
       </MapView>
 
-      {/* Modal para exibir informações do marcador */}
       {selectedLocation && (
         <Modal
           animationType="slide"
@@ -79,12 +109,9 @@ const Maps = () => {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              {/* Botão para fechar o modal */}
               <TouchableOpacity onPress={closeModal}>
                 <Text style={styles.closeButton}>Fechar</Text>
               </TouchableOpacity>
-
-              {/* Exibe as informações do marcador selecionado */}
               <Text style={styles.title}>{selectedLocation.title}</Text>
               <Text style={styles.description}>{selectedLocation.description}</Text>
             </View>
@@ -92,7 +119,6 @@ const Maps = () => {
         </Modal>
       )}
 
-      {/* Modal para exibir o formulário de cadastro */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -101,15 +127,12 @@ const Maps = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            {/* Botão para fechar o modal */}
             <TouchableOpacity onPress={closeModal}>
               <Text style={styles.closeButton}>Fechar</Text>
             </TouchableOpacity>
-
-            {/* Renderiza o formulário de cadastro de localização */}
             <LocationForm
               initialCoordinate={coordinate}
-              onClose={handleLocationFormClose}  // Passa a função de callback
+              onClose={handleLocationFormClose}
             />
           </View>
         </View>
