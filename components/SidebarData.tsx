@@ -1,10 +1,11 @@
 import React from 'react';
-import * as FaIcons from 'react-icons/fa';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export const SidebarData = [
-    { title: 'Home', path: 'Home', icon: <FaIcons.FaHouseUser /> },
-    { title: 'Location', path: 'LocationForm', icon: <FaIcons.FaCrosshairs /> },
-    { title: 'Locations', path: 'LocationList', icon: <FaIcons.FaList /> },
-    { title: 'Category', path: 'CategoryForm', icon: <FaIcons.FaTable /> },
-    { title: 'Categories', path: 'CategoryList', icon: <FaIcons.FaList /> }
+    { title: 'Home', path: 'Home', icon: <Icon name="home" size={20} /> },
+    { title: 'Location', path: 'LocationForm', icon: <Icon name="crosshairs" size={20} /> },
+    { title: 'Locations', path: 'LocationList', icon: <Icon name="list" size={20} /> },
+    { title: 'Category', path: 'CategoryForm', icon: <Icon name="table" size={20} /> },
+    { title: 'Categories', path: 'CategoryList', icon: <Icon name="list" size={20} /> },
+    { title: 'Maps', path: 'Maps', icon: <Icon name="map" size={20} /> },
 ];

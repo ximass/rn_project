@@ -9,7 +9,7 @@ import {
   SidebarIcon,
   SidebarText,
 } from '../styles/Sidebar.styles';
-import * as FaIcons from 'react-icons/fa';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Sidebar: React.FC = () => {
   const navigation = useNavigation();
@@ -30,14 +30,14 @@ const Sidebar: React.FC = () => {
           />
         ))}
         <DrawerItem
-            key='logout'
-            label={() => (
-              <SidebarItem>
-                <SidebarIcon><FaIcons.FaSignOutAlt/></SidebarIcon>
-                <SidebarText>Logout</SidebarText>
-              </SidebarItem>
-            )}
-            onPress={ () => FIREBASE_AUTH.signOut()}
+          key='logout'
+          label={() => (
+            <SidebarItem>
+              <SidebarIcon><Icon name="sign-out" size={20} color="black" /></SidebarIcon>
+              <SidebarText>Logout</SidebarText>
+            </SidebarItem>
+          )}
+          onPress={ () => FIREBASE_AUTH.signOut()}
           />
       </SidebarContainer>
     </DrawerContentScrollView>
