@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react'; 
-import { View, StyleSheet, Modal, TouchableOpacity, Text, Alert } from 'react-native'; 
-import MapView, { Marker } from 'react-native-maps';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Modal, TouchableOpacity, Text, Alert, Image } from 'react-native';
+import MapView, { Marker, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { collection, onSnapshot } from "firebase/firestore"; 
-import { FIREBASE_DB } from "../../FirebaseConfig"; 
-import LocationForm from '../Location/LocationForm'; 
+import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { FIREBASE_DB } from "../../FirebaseConfig";
+import LocationForm from '../Location/LocationForm';
 
 const Maps = () => {
-  const [modalVisible, setModalVisible]         = useState(false);
-  const [coordinate, setCoordinate]             = useState({ latitude: 0, longitude: 0 });
-  const [locations, setLocations]               = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [coordinate, setCoordinate] = useState({ latitude: 0, longitude: 0 });
+  const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [currentLocation, setCurrentLocation]   = useState(null);
+  const [currentLocation, setCurrentLocation] = useState(null);
 
   useEffect(() => {
     const getLocationPermission = async () => {
@@ -23,7 +23,7 @@ const Maps = () => {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      
+
       setCurrentLocation({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -32,11 +32,30 @@ const Maps = () => {
 
     getLocationPermission();
 
-    const unsubscribe = onSnapshot(collection(FIREBASE_DB, 'location'), (querySnapshot) => {
-      const locationsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const unsubscribe = onSnapshot(collection(FIREBASE_DB, 'location'), async (querySnapshot) => {
+      const locationsPromises = querySnapshot.docs.map(async (documentSnapshot) => {
+        const locationData = {
+          id: documentSnapshot.id,
+          ...documentSnapshot.data(),
+        };
+
+        //@ts-ignore
+        const categoryRef = doc(FIREBASE_DB, 'category', locationData.category);
+        const categorySnap = await getDoc(categoryRef);
+
+        if (categorySnap.exists()) {
+          //@ts-ignore
+          locationData.category = categorySnap.data().name;
+        } else {
+          console.error("Categoria não encontrada");
+        }
+
+        return locationData;
+      });
+    
+      // Aguarda todas as buscas das categorias serem concluídas
+      const locationsData = await Promise.all(locationsPromises);
+
       setLocations(locationsData);
     }, (error) => {
       console.error("Erro ao buscar localizações: ", error);
@@ -65,9 +84,9 @@ const Maps = () => {
     closeModal();
   };
 
-  return ( 
-    <View style={styles.container}> 
-      <MapView 
+  return (
+    <View style={styles.container}>
+      <MapView
         style={styles.map}
         initialRegion={{
           latitude: -29.46014087686257,
@@ -114,6 +133,15 @@ const Maps = () => {
               </TouchableOpacity>
               <Text style={styles.title}>{selectedLocation.title}</Text>
               <Text style={styles.description}>{selectedLocation.description}</Text>
+              {selectedLocation.category && (
+                  <Text style={styles.category}>Category: {selectedLocation.category}</Text>
+                )}
+                {selectedLocation.imageUri && (
+                  <Image
+                    source={{ uri: selectedLocation.imageUri }}
+                    style={{ width: 100, height: 100 }}
+                  />
+                )}
             </View>
           </View>
         </Modal>
@@ -137,8 +165,8 @@ const Maps = () => {
           </View>
         </View>
       </Modal>
-    </View> 
-  ); 
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -158,7 +186,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 10,
-    maxWidth: 400, 
+    maxWidth: 400,
     maxHeight: '80%',
   },
   closeButton: {
@@ -175,6 +203,11 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
+  },
+  category: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    marginBottom: 5,
   },
 });
 
