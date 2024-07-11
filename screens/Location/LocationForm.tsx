@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 //@ts-ignore
 import { Container, Title, TextInput, Button, ButtonText, ErrorText, PickerContainer } from '../../styles/Form.styles.js';
 import { useNavigation } from '@react-navigation/native';
-import { Image, View, StyleSheet, ScrollView } from 'react-native';
+import { Image, View, StyleSheet, ScrollView, Alert } from 'react-native';
 
 import * as ImagePicker from 'expo-image-picker';
 
@@ -114,8 +114,17 @@ const LocationForm = ({ initialCoordinate, onClose }) => {
         setErrors((prevErrors) => ({ ...prevErrors, imageUri: undefined }));
     };
 
+    const getPermissionsAsync = async () => {
+        const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+        const { status: mediaLibraryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (cameraStatus !== 'granted' || mediaLibraryStatus !== 'granted') {
+          Alert.alert('Sorry, we need camera and media library permissions to make this work!');
+        }
+      };
+
     useEffect(() => {
         loadCategories();
+        getPermissionsAsync();
     }, []);
 
     return (

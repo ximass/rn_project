@@ -1,4 +1,4 @@
-import { addDoc, collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_CONFIG } from "../../FirebaseConfig";
 import { initializeApp } from 'firebase/app';
 import { initializeFirestore } from 'firebase/firestore';
@@ -15,29 +15,26 @@ interface Category {
 }
 
 const CategoryList: React.FC = () => {
-  const [category, setCategories]               = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [modalVisible, setModalVisible]         = useState(false);
-  const [newName, setNewname]                   = useState('');
-  const [newDescription, setNewDescription]     = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newDescription, setNewDescription] = useState('');
 
   const fb = initializeApp(FIREBASE_CONFIG);
-  const db = initializeFirestore(fb, {})
+  const db = initializeFirestore(fb, {});
 
-  const load = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, 'category'));
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'category'), (snapshot) => {
       const categoryData: Category[] = [];
-
-      querySnapshot.forEach((doc) => {
+      snapshot.forEach((doc) => {
         categoryData.push({ id: doc.id, ...doc.data() } as Category);
       });
-
       setCategories(categoryData);
-    } catch (error) {
-      console.error('Error loading category: ', error);
-    }
-  };
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const deleteCategory = async (id: string) => {
     try {
@@ -50,7 +47,7 @@ const CategoryList: React.FC = () => {
 
   const editCategory = (category: Category) => {
     setSelectedCategory(category);
-    setNewname(category.name);
+    setNewName(category.name);
     setNewDescription(category.description);
     setModalVisible(true);
   };
@@ -60,7 +57,7 @@ const CategoryList: React.FC = () => {
       try {
         await updateDoc(doc(db, 'category', selectedCategory.id), {
           name: newName,
-          description: newDescription
+          description: newDescription,
         });
         setCategories((prevCategories) =>
           prevCategories.map((category) =>
@@ -75,14 +72,10 @@ const CategoryList: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    load();
-  }, []);
-  
   return (
     <Container>
       <Title>Categories</Title>
-      {category && category.map((category) => (
+      {categories && categories.map((category) => (
         <Item key={category.id} onPress={() => editCategory(category)}>
           <ItemText>{category.name}</ItemText>
           <DeleteIcon onPress={() => deleteCategory(category.id)}>
@@ -114,7 +107,7 @@ const CategoryList: React.FC = () => {
               <TextInput
                 placeholder="Name"
                 value={newName}
-                onChangeText={setNewname}
+                onChangeText={setNewName}
                 style={{width: '100%', padding: 10, borderColor: '#ccc', borderWidth: 1, borderRadius: 4, marginBottom: 10}}
               />
               <TextInput
