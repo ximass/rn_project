@@ -33,7 +33,7 @@ const Login = () => {
         try {
             const response = await createUserWithEmailAndPassword(auth, email, password);
             console.log(response);
-            alert('Create account!');
+            alert('Account created!');
         } 
         catch (error) {
             console.log(error);
@@ -46,7 +46,7 @@ const Login = () => {
 
     return (
         <LinearGradient 
-            colors={['#0000ff', '#ffffff']} 
+            colors={['#0000ff', '#000000']} 
             style={styles.container}
         >
             <KeyboardAvoidingView 
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
         width: '100%',
         padding: 15,
         borderRadius: 4,
-        backgroundColor: '#007bff',
+        backgroundColor: '#0000ff',
         alignItems: 'center',
     },
     buttonText: {
